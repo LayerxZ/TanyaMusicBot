@@ -39,4 +39,4 @@ Use [Repl Link](http://string.projectdils.repl.run) to get pyrogram string sessi
 - [UserLazy](https://github.com/UserLazy): Dev
 - [Laky](https://github.com/Laky-64) & [Andrew](https://github.com/AndrewLaneX): PyTgCalls
 - [Original Repo](https://github.com/suprojects/CallsMusic)
-- [Oda Nobunaga](https://t.me/OdaRobot)
+- [Oda Nobunaga](https://t.me/OdaRobot): Bot
