@@ -46,19 +46,24 @@ async def stop(_, message: Message):
 async def skip(_, message: Message):
     global que
     chat_id = get_chat_id(message.chat)
-
-    callsmusic.queues.task_done(message.chat.id)
-    await message.reply_text("⏩ Play the next Song.")
-    if callsmusic.queues.is_empty(message.chat.id):
-        callsmusic.pytgcalls.leave_group_call(message.chat.id)
-        await message.reply_text("Music Stopped, Playlist is empty")
+    if chat_id not in callsmusic.pytgcalls.active_calls:
+        await message.reply_text("❗ Nothing is playing to skip!")
     else:
-        callsmusic.pytgcalls.change_stream(
-                message.chat.id,
-                callsmusic.queues.get(message.chat.id)["file"]
+        callsmusic.queues.task_done(chat_id)
+
+        if callsmusic.queues.is_empty(chat_id):
+            callsmusic.pytgcalls.leave_group_call(chat_id)
+        else:
+            callsmusic.pytgcalls.change_stream(
+                chat_id, callsmusic.queues.get(chat_id)["file"]
             )
 
-        await message.reply_text(" ")
+    qeue = que.get(chat_id)
+    if qeue:
+        skip = qeue.pop(0)
+    if not qeue:
+        return
+    await message.reply_text(f"- Skipped **{skip[0]}**\n- Now Playing **{qeue[0][0]}**")
 
 
 @Client.on_message(filters.command("reload"))
