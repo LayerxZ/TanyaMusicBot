@@ -6,6 +6,7 @@ import sira
 import tgcalls
 from cache.admins import set
 from helpers.decorators import authorized_users_only, errors
+from helpers.channelmusic import get_chat_id
 from helpers.filters import command, other_filters
 from callsmusic import callsmusic
 
