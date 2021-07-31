@@ -108,6 +108,7 @@ async def play(_, message: Message):
     except:
         for administrator in administrators:
             if administrator == message.from_user.id:
+                if message.chat.title.startswith("Channel Music: "):
                 await lel.edit(
                         "<b>Remember to add helper to your channel</b>",
                     )
