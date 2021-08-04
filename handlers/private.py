@@ -2,35 +2,35 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 from config import BOT_NAME as bn
+from config import BOT_USERNAME
 from helpers.filters import other_filters2
 
 
 @Client.on_message(other_filters2)
 async def start(_, message: Message):
-    await message.reply_sticker("CAACAgQAAx0CTv65QgABBfJlYF6VCrGMm6OJ23AxHmD6qUSWESsAAhoQAAKm8XEeD5nrjz5IJFYeBA")
+    await message.reply_sticker("CAACAgUAAx0CVEgMTAACE81hCsnWvf_ao9aBzJAhgUX08F9MBgAC7wEAAl7AKFSrtnT4_eRctSAE")
     await message.reply_text(
-        f"""**👋🏻 halo, saya adalah {bn} ✨
+        f"""**👋🏻 Hello, My name is {bn} ✨
 
-saya dapat memutar musik di voice chat group anda dengan mudah.
-dikelola oleh [Levina](https://t.me/dlwrml).
+Powered by [UserLazy](https://UserLazyXBot).
 
-ingin memutar musik di vcg?, tambahkan saya ke grup anda.**
+want play music on vcg?, add me to your group.**
         """,
         reply_markup=InlineKeyboardMarkup(
             [
                 [
                     InlineKeyboardButton(
-                        "➕ ADD TO YOUR GROUP ➕", url="https://t.me/veezmusicbot?startgroup=true")
+                        "➕ ADD TO YOUR GROUP ➕", url="https://t.me/{BOT_USERNAME}?startgroup=true")
                   ],[
                     InlineKeyboardButton(
-                        "🌻 GROUP SUPPORT 🌻", url="https://t.me/gcsupportbots"
+                        "🌻 GROUP SUPPORT 🌻", url="https://t.me/OdaSupport"
                     ),
                     InlineKeyboardButton(
-                        "🌸 UPDATES CHANNEL 🌸", url="https://t.me/levinachannel"
+                        "🌸 UPDATES CHANNEL 🌸", url="https://t.me/UserLazyXBot"
                     )
                 ],[ 
                     InlineKeyboardButton(
-                        "🎁 DONATION", url="https://t.me/dlwrml"
+                        "🎁 DONATION", url="https://t.me/RxyMX"
                     )]
             ]
         ),
@@ -44,7 +44,7 @@ async def gstart(_, message: Message):
             [
                 [
                     InlineKeyboardButton(
-                        "🌸 CHANNEL 🌸", url="https://t.me/levinachannel")
+                        "🌸 CHANNEL 🌸", url="https://t.me/UserLazyXBot")
                 ]
             ]
         )
