@@ -183,15 +183,18 @@ async def play(_, message: Message):
         views = "Locally added"
 
         keyboard = InlineKeyboardMarkup(
-            [
                 [
-                    InlineKeyboardButton(
-                        text="Channel 🔊",
-                        url="https://t.me/UserLazyXBot")
-                   
+                    [
+                        InlineKeyboardButton(
+                            text="Support 🚨",
+                            url=f"https://t.me/OdaSupport"),
+                        InlineKeyboardButton(
+                            text="Updates 📡",
+                            url=f"https://t.me/UserLazyXBot")
+                    ],
+                    [InlineKeyboardButton(text="❌ Close", callback_data="cls")],
                 ]
-            ]
-        )
+            )
         
         requested_by = message.from_user.first_name
         await generate_cover(requested_by, title, views, duration, thumbnail)  
