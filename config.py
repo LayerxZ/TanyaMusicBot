@@ -8,7 +8,6 @@ que = {}
 SESSION_NAME = getenv("SESSION_NAME", "session")
 BOT_TOKEN = getenv("BOT_TOKEN")
 BOT_NAME = getenv("BOT_NAME")
-BOT_USERNAME = getenv("BOT_USERNAME")
 
 admins = {}
 API_ID = int(getenv("API_ID"))
