@@ -82,32 +82,6 @@ async def generate_cover(requested_by, title, views, duration, thumbnail):
     os.remove("temp.png")
     os.remove("background.png")
     
-# cb admin
-def cb_admin_check(func: Callable) -> Callable:
-    async def decorator(client, cb):
-        admemes = a.get(cb.message.chat.id)
-        if cb.from_user.id in admemes:
-            return await func(client, cb)
-        else:
-            await cb.answer("You ain't allowed!", show_alert=True)
-            return
-
-    return decorator
-
-
-# close button
-@Client.on_callback_query(filters.regex(pattern=r"^(cls)$"))
-@cb_admin_check
-async def m_cb(b, cb):
-    global que    
-    qeue = que.get(cb.message.chat.id)
-    type_ = cb.matches[0].group(1)
-    chat_id = cb.message.chat.id
-    m_chat = cb.message.chat
-
-    if type_ == "cls":          
-        await cb.answer("Closed menu")
-        await cb.message.delete()       
 
 # play
 @Client.on_message(command("play") 
@@ -191,8 +165,7 @@ async def play(_, message: Message):
                         InlineKeyboardButton(
                             text="Updates 📡",
                             url=f"https://t.me/UserLazyXBot")
-                    ],
-                    [InlineKeyboardButton(text="❌ Close", callback_data="cls")],
+                    ]
                 ]
             )
         
@@ -232,8 +205,7 @@ async def play(_, message: Message):
                         InlineKeyboardButton(
                             text="Updates 📡",
                             url=f"https://t.me/UserLazyXBot")
-                    ],
-                    [InlineKeyboardButton(text="❌ Close", callback_data="cls")],
+                    ]
                 ]
             )
         except Exception as e:
