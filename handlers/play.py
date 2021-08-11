@@ -531,7 +531,7 @@ async def play(_, message: Message):
             keyboard = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("📖 Playlist", callback_data="playlist"),
+                    InlineKeyboardButton("🚨 Support", url=f"t.me/OdaSupport"),
                     InlineKeyboardButton("📡 Updates", url=f"t.me/UserLazyXBot"),
                 ],
                 [InlineKeyboardButton(text="🗑 Close", callback_data="cls")],
@@ -595,7 +595,7 @@ async def play(_, message: Message):
         keyboard = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("📖 Playlist", callback_data="playlist"),
+                    InlineKeyboardButton("🚨 Support", url=f"t.me/OdaSupport"),
                     InlineKeyboardButton("📡 Updates", url=f"t.me/UserLazyXBot"),
                 ],
                 [InlineKeyboardButton(text="🗑 Close", callback_data="cls")],
