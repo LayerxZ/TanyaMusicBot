@@ -19,6 +19,7 @@ from helpers.filters import command
 from helpers.decorators import errors, authorized_users_only
 from helpers.errors import DurationLimitError
 from helpers.gets import get_url, get_file_name
+from helpers.channelmusic import get_chat_id
 import aiofiles
 import ffmpeg
 from PIL import Image, ImageFont, ImageDraw
@@ -419,16 +420,12 @@ async def m_cb(b, cb):
     
 
 # play
-@Client.on_message(command("play") 
-                   & filters.group
-                   & ~filters.edited 
-                   & ~filters.forwarded
-                   & ~filters.via_bot)
+@Client.on_message(command("play") & other_filters)
 async def play(_, message: Message):
-global que
+    global que
     global useer
     if message.chat.id in DISABLED_GROUPS:
-        return    
+        return
     lel = await message.reply("🔄 **Processing...**")
     
     administrators = await get_administrators(message.chat)
