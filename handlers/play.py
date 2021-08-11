@@ -151,7 +151,7 @@ async def m_cb(b, cb):
     chat_id = cb.message.chat.id
     m_chat = cb.message.chat
 
-    elif type_ == "cls":          
+    if type_ == "cls":          
         await cb.answer("Closed menu")
         await cb.message.delete()
 
