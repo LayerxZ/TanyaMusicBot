@@ -424,7 +424,10 @@ async def m_cb(b, cb):
                    & ~filters.forwarded
                    & ~filters.via_bot)
 async def play(_, message: Message):
-
+global que
+    global useer
+    if message.chat.id in DISABLED_GROUPS:
+        return    
     lel = await message.reply("🔄 **Processing...**")
     
     administrators = await get_administrators(message.chat)
