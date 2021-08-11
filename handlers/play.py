@@ -142,27 +142,16 @@ async def hfmm(_, message):
             "I only recognize `/musicplayer on` and /musicplayer `off only`"
         )
 
-@Client.on_callback_query(
-    filters.regex(pattern=r"^(cls)$")
-)
+@Client.on_callback_query(filters.regex(pattern=r"^(cls)$"))
 @cb_admin_check
 async def m_cb(b, cb):
-    global que
-    if (
-        cb.message.chat.title.startswith("Channel Music: ")
-        and chat.title[14:].isnumeric()
-    ):
-        chet_id = int(chat.title[13:])
-    else:
-        chet_id = cb.message.chat.id
-    qeue = que.get(chet_id)
+    global que    
+    qeue = que.get(cb.message.chat.id)
     type_ = cb.matches[0].group(1)
-    cb.message.chat.id
+    chat_id = cb.message.chat.id
     m_chat = cb.message.chat
 
-    the_data = cb.message.reply_markup.inline_keyboard[1][0].callback_data
-    
-    elif type_ == "cls":
+    elif type_ == "cls":          
         await cb.answer("Closed menu")
         await cb.message.delete()
 
