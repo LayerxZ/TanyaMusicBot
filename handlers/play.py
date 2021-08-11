@@ -420,7 +420,7 @@ async def m_cb(b, cb):
     
 
 # play
-@Client.on_message(command("play") & other_filters)
+@Client.on_message(filters.command("play") & filters.group & ~filters.edited & ~filters.forwarded & ~filters.via_bot)
 async def play(_, message: Message):
     global que
     global useer
