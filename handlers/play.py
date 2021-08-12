@@ -170,7 +170,7 @@ async def play(_, message: Message):
     try:
         user = await USER.get_me()
     except:
-        user.first_name = "@OdaHelper"
+        user.first_name = "@trashzz_bot"
     usar = user
     wew = usar.id
     try:
@@ -192,10 +192,10 @@ async def play(_, message: Message):
                 try:
                     await USER.join_chat(invitelink)
                     await USER.send_message(
-                        message.chat.id, "Oda joined this group for playing music in VC"
+                        message.chat.id, "Tanya joined this group for playing music in VC"
                     )
                     await lel.edit(
-                        "<b>Oda Assistent joined this chat</b>",
+                        "<b>tanya Assistent joined this chat</b>",
                     )
                     
                 except UserAlreadyParticipant:
