@@ -27,7 +27,7 @@ async def resume(_, message: Message):
     await message.reply_text("▶️ Music Resumed.")
 
 
-@Client.on_message(command(["end", "stop"]) & other_filters)
+@Client.on_message(command(["end", "dc"]) & other_filters)
 @errors
 @authorized_users_only
 async def stop(_, message: Message):
@@ -37,7 +37,7 @@ async def stop(_, message: Message):
        pass
 
     callsmusic.pytgcalls.leave_group_call(message.chat.id)
-    await message.reply_text("❌ **Stop the Song!**")
+    await message.reply_text("❌ **kontol!**")
 
 
 @Client.on_message(command("skip") & other_filters)
@@ -80,4 +80,4 @@ async def admincache(client, message: Message):
         ),
     )
 
-    await message.reply_text("✅️ **Admin List** is **updated**")
+    await message.reply_text("✅️ **y**")
