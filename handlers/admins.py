@@ -27,7 +27,7 @@ async def resume(_, message: Message):
     await message.reply_text("▶️ Music Resumed.")
 
 
-@Client.on_message(command(["end", "dc"]) & other_filters)
+@Client.on_message(command(["y", "dc"]) & other_filters)
 @errors
 @authorized_users_only
 async def stop(_, message: Message):
@@ -80,4 +80,4 @@ async def admincache(client, message: Message):
         ),
     )
 
-    await message.reply_text("✅️ **y**")
+    await message.reply_text("✅️ **ybg**")
