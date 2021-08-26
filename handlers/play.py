@@ -118,7 +118,7 @@ async def hfmm(_, message):
     status = message.text.split(None, 1)[1]
     message.chat.id
     if status == "ON" or status == "on" or status == "On":
-        lel = await message.reply("`Processing...`")
+        lel = await message.reply("`Prosessssss...`")
         if not message.chat.id in DISABLED_GROUPS:
             await lel.edit("Music Player Already Activated In This Chat")
             return
@@ -162,7 +162,7 @@ async def play(_, message: Message):
     global useer
     if message.chat.id in DISABLED_GROUPS:
         return
-    lel = await message.reply("🔄 **Processing...**")
+    lel = await message.reply("🔄 **Prosessssss...**")
     
     administrators = await get_administrators(message.chat)
     chid = message.chat.id
@@ -195,7 +195,7 @@ async def play(_, message: Message):
                         message.chat.id, "Tanya joined this group for playing music in VC"
                     )
                     await lel.edit(
-                        "<b>tanya Assistent joined this chat</b>",
+                        "<b>master joined this chat</b>",
                     )
                     
                 except UserAlreadyParticipant:
@@ -208,7 +208,7 @@ async def play(_, message: Message):
         # lmoa = await client.get_chat_member(chid,wew)
     except:
         await lel.edit(
-            f"<i>Hey {user.first_name}, assistant userbot is not in this chat, ask admin to send /play command for first time to add it.</i>")
+            f"<i>Hey {user.first_name}, /reload bg.</i>")
         return
     
     audio = (message.reply_to_message.audio or message.reply_to_message.voice) if message.reply_to_message else None
@@ -323,7 +323,7 @@ async def play(_, message: Message):
                 
         except Exception as e:
             await lel.edit(
-                "❌ Song not found.\n\nTry another song or maybe spell it properly."
+                "❌ Lagu lo gak pasaran."
             )
             print(str(e))
             return
@@ -349,7 +349,7 @@ async def play(_, message: Message):
         position = await queues.put(message.chat.id, file=file_path)
         await message.reply_photo(
         photo="final.png", 
-        caption="**🎵 Song:** {}\n**🕒 Duration:** {} min\n**👤 Added By:** {}\n\n**#⃣ Queued Position:** {}".format(
+        caption="**🎵 Judul:** {}\n**🕒 Durasi:** {} min\n**👤 Req by:** {}\n\n**#⃣ Posisi ke:** {}".format(
         title, duration, message.from_user.mention(), position
         ),
         reply_markup=keyboard)
@@ -360,7 +360,7 @@ async def play(_, message: Message):
         await message.reply_photo(
         photo="final.png",
         reply_markup=keyboard,
-        caption="**🎵 Song:** {}\n**🕒 Duration:** {} min\n**👤 Added By:** {}\n\n**▶️ Now Playing at `{}`...**".format(
+        caption="**🎵 Judul:** {}\n**🕒 Posisi:** {} min\n**👤 Req by:** {}\n\n**▶️ Di putar di: `{}`...**".format(
         title, duration, message.from_user.mention(), message.chat.title
         ), )
         os.remove("final.png")
