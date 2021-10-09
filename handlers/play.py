@@ -192,7 +192,7 @@ async def play(_, message: Message):
                 try:
                     await USER.join_chat(invitelink)
                     await USER.send_message(
-                        message.chat.id, "Tanya joined this group for playing music in VC"
+                        message.chat.id, "Bot joined this group for playing music in VC"
                     )
                     await lel.edit(
                         "<b>master joined this chat</b>",
@@ -208,7 +208,7 @@ async def play(_, message: Message):
         # lmoa = await client.get_chat_member(chid,wew)
     except:
         await lel.edit(
-            f"<i>Hey {user.first_name}, /reload bg.</i>")
+            f"<i>Woe {user.first_name}, /play dulu bg biar ga error.</i>")
         return
     
     audio = (message.reply_to_message.audio or message.reply_to_message.voice) if message.reply_to_message else None
