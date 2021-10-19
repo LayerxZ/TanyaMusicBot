@@ -17,4 +17,4 @@ future
 psutil
 wget
 ffmpeg-python
-yt_dpl
+yt_dlp
