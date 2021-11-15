@@ -19,8 +19,21 @@
       "required": false,
       "value": ""
     },
+    "BOT_ID": {
+      "description": "Your MusicPlayer Bot ID.",
+      "required": false,
+      "value": ""
+    },
     "API_ID": {
       "description": "App ID from my.telegram.org/apps",
+      "required": true
+    },
+    "HEROKU_API_KEY": {
+      "description": "your heroku apikey",
+      "required": true
+    },
+    "HEROKU_APP_NAME": {
+      "description": "Your heroku appname",
       "required": true
     },
     "API_HASH": {
@@ -35,6 +48,14 @@
       "description": "Max audio duration limit for downloads (minutes).",
       "required": true,
       "value": "10"
+    },
+    "MONGO_DB_URI": {
+      "description": "MongoDB url",
+      "required": true,
+    },
+    "OWNER_ID": {
+      "description": "App ID from my.telegram.org/apps",
+      "required": true
     }
   }
 }
