@@ -1,5 +1,13 @@
 import os
 from os import path
+import shutil
+import psutil
+from typing import Union
+import subprocess
+from pytgcalls.types.input_stream import InputAudioStream
+from pytgcalls import StreamType
+from youtube_search import YoutubeSearch
+from pytgcalls.types.input_stream import InputStream
 from typing import Callable
 from pyrogram import Client, filters
 from pyrogram.types import Message, Voice, InlineKeyboardButton, InlineKeyboardMarkup
@@ -7,13 +15,21 @@ from pyrogram.errors import UserAlreadyParticipant
 from callsmusic import callsmusic, queues
 from callsmusic.callsmusic import client as USER
 from helpers.admins import get_administrators
+from database.queue import (
+    get_active_chats,
+    is_active_chat,
+    add_active_chat,
+    remove_active_chat,
+    music_on,
+    is_music_playing,
+    music_off,
+)
 import requests
 import aiohttp
-import youtube_dl
-from youtube_search import YoutubeSearch
+import yt_dlp
 import converter
 from downloaders import youtube
-from config import DURATION_LIMIT, que
+from config import DURATION_LIMIT, que, SUDO_USERS, BOT_ID
 from cache.admins import admins as a
 from helpers.filters import command
 from helpers.decorators import errors, authorized_users_only
@@ -22,12 +38,16 @@ from helpers.gets import get_url, get_file_name
 from helpers.channelmusic import get_chat_id
 import aiofiles
 import ffmpeg
+from asyncio import QueueEmpty
 from PIL import Image, ImageFont, ImageDraw
+import asyncio
 
 # plus
 chat_id = None
 DISABLED_GROUPS = []
-useer ="NaN"
+useer = "NaN"
+flex = {}
+
 def cb_admin_check(func: Callable) -> Callable:
     async def decorator(client, cb):
         admemes = a.get(cb.message.chat.id)
@@ -156,16 +176,60 @@ async def m_cb(b, cb):
         await cb.message.delete()
 
 # play
-@Client.on_message(filters.command("play") & filters.group & ~filters.edited & ~filters.forwarded & ~filters.via_bot)
+@Client.on_message(
+    command(["play", "play@OdaRobot"])
+    & filters.group
+    & ~filters.edited
+    & ~filters.forwarded
+    & ~filters.via_bot
+)
 async def play(_, message: Message):
     global que
     global useer
+    user_id = message.from_user.id
+    if message.sender_chat:
+        return await message.reply_text(
+            "You're an **Anonymous Admin**!\nRevert back to User Account From Admin Rights."
+        )
+
     if message.chat.id in DISABLED_GROUPS:
+        await message.reply("**Musicplayer is Disable, ask admin for Enable it!**")
         return
-    lel = await message.reply("🔄 **Prosessssss...**")
-    
+    lel = await message.reply("🔄 **Processing...**")
+
     administrators = await get_administrators(message.chat)
     chid = message.chat.id
+
+    c = await _.get_chat_member(message.chat.id, BOT_ID)
+    if c.status != "administrator":
+        await lel.edit(
+            f"I need to be admin with some permissions:\n\n- **can_manage_voice_chats:** To manage voice chats\n- **can_delete_messages:** To delete Music's Searched Waste\n- **can_invite_users**: For inviting assistant to chat\n- **can_restrict_members**: For Protecting Music from Spammers."
+        )
+        return
+    if not c.can_manage_voice_chats:
+        await lel.edit(
+            "I don't have the required permission to perform this action."
+            + "\n**Permission:** Manage Voice Chats"
+        )
+        return
+    if not c.can_delete_messages:
+        await lel.edit(
+            "I don't have the required permission to perform this action."
+            + "\n**Permission:** Delete Message"
+        )
+        return
+    if not c.can_invite_users:
+        await lel.edit(
+            "I don't have the required permission to perform this action."
+            + "\n**Permission:** Invite User Via Invitelink"
+        )
+        return
+    if not c.can_restrict_members:
+        await lel.edit(
+            "I don't have the required permission to perform this action."
+            + "\n**Permission:** Ban User"
+        )
+        return
 
     try:
         user = await USER.get_me()
@@ -179,8 +243,8 @@ async def play(_, message: Message):
         for administrator in administrators:
             if administrator == message.from_user.id:
                 await lel.edit(
-                        "<b>Remember to add helper to your channel</b>",
-                    )
+                    "<b>Remember to add helper to your channel</b>",
+                )
                 try:
                     invitelink = await _.export_chat_invite_link(chid)
                 except:
@@ -191,18 +255,16 @@ async def play(_, message: Message):
 
                 try:
                     await USER.join_chat(invitelink)
-                    await USER.send_message(
-                        message.chat.id, "Bot joined this group for playing music in VC"
-                    )
                     await lel.edit(
-                        "<b>master joined this chat</b>",
+                        f"<b>Master joined this chat</b>",
                     )
-                    
+
                 except UserAlreadyParticipant:
                     pass
                 except Exception:
                     await lel.edit(
-                        f"<b>🛑 Flood Wait Error 🛑</b> \n\Hey {user.first_name}, assistant userbot couldn't join your group due to heavy join requests. Make sure userbot is not banned in group and try again later!")
+                        f"<b>🛑 Flood Wait Error 🛑</b> \n\Hey {user.first_name}, assistant userbot couldn't join your group due to heavy join requests. Make sure userbot is not banned in group and try again later!"
+                    )
     try:
         await USER.get_chat(chid)
         # lmoa = await client.get_chat_member(chid,wew)
@@ -230,7 +292,7 @@ async def play(_, message: Message):
         keyboard = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("* Playlist *", callback_data="playlist"),
+                    InlineKeyboardButton("* Support *", url="t.me/OdaSupport),
                     InlineKeyboardButton("* Updates *", url=f"t.me/UserLazyXBot"),
                 ],
                 [InlineKeyboardButton(text="🗑 Close", callback_data="cls")],
@@ -293,7 +355,72 @@ async def play(_, message: Message):
              return
         requested_by = message.from_user.first_name
         await generate_cover(requested_by, title, views, duration, thumbnail)     
-        file_path = await converter.convert(youtube.download(url))
+        def my_hook(d):
+            if d["status"] == "downloading":
+                percentage = d["_percent_str"]
+                per = (str(percentage)).replace(".", "", 1).replace("%", "", 1)
+                per = int(per)
+                eta = d["eta"]
+                speed = d["_speed_str"]
+                size = d["_total_bytes_str"]
+                bytesx = d["total_bytes"]
+                if str(bytesx) in flex:
+                    pass
+                else:
+                    flex[str(bytesx)] = 1
+                if flex[str(bytesx)] == 1:
+                    flex[str(bytesx)] += 1
+                    try:
+                        if eta > 2:
+                            lel.edit(
+                                f"Downloading {title[:50]}\n\n**FileSize:** {size}\n**Downloaded:** {percentage}\n**Speed:** {speed}\n**ETA:** {eta} sec"
+                            )
+                    except Exception as e:
+                        pass
+                if per > 250:
+                    if flex[str(bytesx)] == 2:
+                        flex[str(bytesx)] += 1
+                        if eta > 2:
+                            lel.edit(
+                                f"**Downloading** {title[:50]}..\n\n**FileSize:** {size}\n**Downloaded:** {percentage}\n**Speed:** {speed}\n**ETA:** {eta} sec"
+                            )
+                        print(
+                            f"[{url_suffix}] Downloaded {percentage} at a speed of {speed} | ETA: {eta} seconds"
+                        )
+                if per > 500:
+                    if flex[str(bytesx)] == 3:
+                        flex[str(bytesx)] += 1
+                        if eta > 2:
+                            lel.edit(
+                                f"**Downloading** {title[:50]}...\n\n**FileSize:** {size}\n**Downloaded:** {percentage}\n**Speed:** {speed}\n**ETA:** {eta} sec"
+                            )
+                        print(
+                            f"[{url_suffix}] Downloaded {percentage} at a speed of {speed} | ETA: {eta} seconds"
+                        )
+                if per > 800:
+                    if flex[str(bytesx)] == 4:
+                        flex[str(bytesx)] += 1
+                        if eta > 2:
+                            lel.edit(
+                                f"**Downloading** {title[:50]}....\n\n**FileSize:** {size}\n**Downloaded:** {percentage}\n**Speed:** {speed}\n**ETA:** {eta} sec"
+                            )
+                        print(
+                            f"[{url_suffix}] Downloaded {percentage} at a speed of {speed} | ETA: {eta} seconds"
+                        )
+            if d["status"] == "finished":
+                try:
+                    taken = d["_elapsed_str"]
+                except Exception as e:
+                    taken = "00:00"
+                size = d["_total_bytes_str"]
+                lel.edit(
+                    f"**Downloaded** {title[:50]}.....\n\n**FileSize:** {size}\n**Time Taken:** {taken} sec\n\n**Converting File**[__FFmpeg processing__]"
+                )
+                print(f"[{url_suffix}] Downloaded| Elapsed: {taken} seconds")
+
+        loop = asyncio.get_event_loop()
+        x = await loop.run_in_executor(None, youtube.download, url, my_hook)
+        file_path = await converter.convert(x)
     else:
         if len(message.command) < 2:
             return await lel.edit("🧐 **What's the song you want to play?**")
@@ -343,9 +470,74 @@ async def play(_, message: Message):
              return
         requested_by = message.from_user.first_name
         await generate_cover(requested_by, title, views, duration, thumbnail)  
-        file_path = await converter.convert(youtube.download(url))
+        def my_hook(d):
+            if d["status"] == "downloading":
+                percentage = d["_percent_str"]
+                per = (str(percentage)).replace(".", "", 1).replace("%", "", 1)
+                per = int(per)
+                eta = d["eta"]
+                speed = d["_speed_str"]
+                size = d["_total_bytes_str"]
+                bytesx = d["total_bytes"]
+                if str(bytesx) in flex:
+                    pass
+                else:
+                    flex[str(bytesx)] = 1
+                if flex[str(bytesx)] == 1:
+                    flex[str(bytesx)] += 1
+                    try:
+                        if eta > 2:
+                            lel.edit(
+                                f"Downloading {title[:50]}\n\n**FileSize:** {size}\n**Downloaded:** {percentage}\n**Speed:** {speed}\n**ETA:** {eta} sec"
+                            )
+                    except Exception as e:
+                        pass
+                if per > 250:
+                    if flex[str(bytesx)] == 2:
+                        flex[str(bytesx)] += 1
+                        if eta > 2:
+                            lel.edit(
+                                f"**Downloading** {title[:50]}..\n\n**FileSize:** {size}\n**Downloaded:** {percentage}\n**Speed:** {speed}\n**ETA:** {eta} sec"
+                            )
+                        print(
+                            f"[{url_suffix}] Downloaded {percentage} at a speed of {speed} | ETA: {eta} seconds"
+                        )
+                if per > 500:
+                    if flex[str(bytesx)] == 3:
+                        flex[str(bytesx)] += 1
+                        if eta > 2:
+                            lel.edit(
+                                f"**Downloading** {title[:50]}...\n\n**FileSize:** {size}\n**Downloaded:** {percentage}\n**Speed:** {speed}\n**ETA:** {eta} sec"
+                            )
+                        print(
+                            f"[{url_suffix}] Downloaded {percentage} at a speed of {speed} | ETA: {eta} seconds"
+                        )
+                if per > 800:
+                    if flex[str(bytesx)] == 4:
+                        flex[str(bytesx)] += 1
+                        if eta > 2:
+                            lel.edit(
+                                f"**Downloading** {title[:50]}....\n\n**FileSize:** {size}\n**Downloaded:** {percentage}\n**Speed:** {speed}\n**ETA:** {eta} sec"
+                            )
+                        print(
+                            f"[{url_suffix}] Downloaded {percentage} at a speed of {speed} | ETA: {eta} seconds"
+                        )
+            if d["status"] == "finished":
+                try:
+                    taken = d["_elapsed_str"]
+                except Exception as e:
+                    taken = "00:00"
+                size = d["_total_bytes_str"]
+                lel.edit(
+                    f"**Downloaded** {title[:50]}.....\n\n**FileSize:** {size}\n**Time Taken:** {taken} sec\n\n**Converting File**[__FFmpeg processing__]"
+                )
+                print(f"[{url_suffix}] Downloaded| Elapsed: {taken} seconds")
+
+        loop = asyncio.get_event_loop()
+        x = await loop.run_in_executor(None, youtube.download, url, my_hook)
+        file_path = await converter.convert(x)
   
-    if message.chat.id in callsmusic.pytgcalls.active_calls:
+    if await is_active_chat(message.chat.id):
         position = await queues.put(message.chat.id, file=file_path)
         await message.reply_photo(
         photo="final.png", 
@@ -356,7 +548,17 @@ async def play(_, message: Message):
         os.remove("final.png")
         return await lel.delete()
     else:
-        callsmusic.pytgcalls.join_group_call(message.chat.id, file_path)
+        await music_on(message.chat.id)
+        await add_active_chat(message.chat.id)
+        await callsmusic.pytgcalls.join_group_call(
+            message.chat.id,
+            InputStream(
+                InputAudioStream(
+                    file_path,
+                ),
+            ),
+            stream_type=StreamType().local_stream,
+        )
         await message.reply_photo(
         photo="final.png",
         reply_markup=keyboard,
