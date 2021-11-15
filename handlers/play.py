@@ -177,7 +177,7 @@ async def m_cb(b, cb):
 
 # play
 @Client.on_message(
-    command(["play", "play@OdaRobot"])
+    command(["play", "play@trashzz_bot"])
     & filters.group
     & ~filters.edited
     & ~filters.forwarded
@@ -329,7 +329,7 @@ async def play(_, message: Message):
             keyboard = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("* Support *", url=f"t.me/OdaSupport"),
+                    InlineKeyboardButton("* Support *", url=f"t.me/Alterweebs"),
                     InlineKeyboardButton("* Updates *", url=f"t.me/UserLazyXBot"),
                 ],
                 [InlineKeyboardButton(text="🗑 Close", callback_data="cls")],
