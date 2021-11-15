@@ -292,7 +292,7 @@ async def play(_, message: Message):
         keyboard = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("* Support *", url="t.me/OdaSupport),
+                    InlineKeyboardButton("* Support *", url="t.me/Alterweebs"),
                     InlineKeyboardButton("* Updates *", url=f"t.me/UserLazyXBot"),
                 ],
                 [InlineKeyboardButton(text="🗑 Close", callback_data="cls")],
